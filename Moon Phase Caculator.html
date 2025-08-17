@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moon Phase Calculator</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; text-align: center; }
+        h1 { color: #333; }
+        input, button { padding: 10px; margin: 5px; }
+        button { cursor: pointer; background-color: #4CAF50; color: white; border: none; }
+        #result { margin-top: 20px; font-size: 1.2em; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Moon Phase Calculator 🌙</h1>
+    <p>Enter a date to find the moon's phase:</p>
+    <input type="date" id="dateInput">
+    <button onclick="calculateMoonPhase()">Calculate</button>
+    <p id="result"></p>
+
+    <script>
+        function calculateMoonPhase() {
+            const dateInput = document.getElementById('dateInput').value;
+            const resultElement = document.getElementById('result');
+
+            if (!dateInput) {
+                resultElement.textContent = 'Please enter a date.';
+                return;
+            }
+
+            const date = new Date(dateInput);
+            const year = date.getFullYear();
+            const month = date.getMonth(); // 0-indexed
+            const day = date.getDate();
+
+            // The Julian day number (JDN) is a continuous count of days.
+            // This is a more robust JDN calculation.
+            const a = Math.floor((14 - month) / 12);
+            const y = year + 4800 - a;
+            const m = month + 12 * a - 2;
+            const jdn = day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+
+            // Known JDN of a specific new moon (e.g., January 1st, 2000 was close to a new moon).
+            const knownNewMoonJdn = 2451549.5;
+            const synodicMonth = 29.53058867;
+
+            // Calculate the age of the moon in its current cycle.
+            const moonAge = (jdn - knownNewMoonJdn) % synodicMonth;
+
+            // An array of the moon phases and their corresponding emoji.
+            const phases = [
+                'New Moon 🌑',
+                'Waxing Crescent 🌒',
+                'First Quarter 🌓',
+                'Waxing Gibbous 🌔',
+                'Full Moon 🌕',
+                'Waning Gibbous 🌖',
+                'Last Quarter 🌗',
+                'Waning Crescent 🌘'
+            ];
+
+            let phaseName = '';
+
+            // This calculates the phase name based on the age of the moon.
+            // These boundaries are based on the synodic cycle.
+            if (moonAge >= 27.5 || moonAge < 1.5) {
+                phaseName = phases[0]; // New Moon
+            } else if (moonAge < 6.5) {
+                phaseName = phases[1]; // Waxing Crescent
+            } else if (moonAge < 8.5) {
+                phaseName = phases[2]; // First Quarter
+            } else if (moonAge < 13.5) {
+                phaseName = phases[3]; // Waxing Gibbous
+            } else if (moonAge < 16.5) {
+                phaseName = phases[4]; // Full Moon
+            } else if (moonAge < 20.5) {
+                phaseName = phases[5]; // Waning Gibbous
+            } else if (moonAge < 23.5) {
+                phaseName = phases[6]; // Last Quarter
+            } else {
+                phaseName = phases[7]; // Waning Crescent
+            }
+            
+            resultElement.textContent = `The moon phase on this date is: ${phaseName}`;
+        }
+    </script>
+</body>
+</html>
